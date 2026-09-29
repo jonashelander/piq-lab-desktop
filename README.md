@@ -20,15 +20,17 @@ Not sure which Mac you have? Click the Apple menu () → **About This Mac**. If 
 
 ### Step 3 — Open for the first time
 
-Because PIQ Lab is not distributed through the Mac App Store, macOS will block it the first time. Here is how to open it:
+Because PIQ Lab is not distributed through the Mac App Store, macOS will block it the first time with a message saying the app is "damaged". This is a standard macOS security measure for unsigned apps — the app is fine.
 
-1. Go to your **Applications** folder and double-click **PIQ Lab**
-2. macOS shows a warning — click **Done** to dismiss it
-3. Open **System Settings** → **Privacy & Security**
-4. Scroll down until you see _"PIQ Lab was blocked"_ and click **Open Anyway**
-5. Click **Open** in the confirmation dialog
+To fix it, open the **Terminal** app (press ⌘ Space, type `Terminal`, press Return) and run this command:
 
-You only need to do this once. After that, PIQ Lab opens normally.
+```
+xattr -cr /Applications/PIQ\ Lab.app
+```
+
+Press Return. Then double-click **PIQ Lab** in your Applications folder — it will open normally.
+
+You only need to do this once.
 
 ## What it does
 
