@@ -36,7 +36,11 @@
     "icon": "resources/icon",
     "mac": {
       "category": "public.app-category.developer-tools",
-      "icon": "resources/icon.icns"
+      "icon": "resources/icon.icns",
+      "identity": null,
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ]
     },
     "directories": {
       "output": "release"
