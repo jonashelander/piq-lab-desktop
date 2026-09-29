@@ -1,12 +1,17 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, nativeImage } from 'electron'
 import { join } from 'path'
 import express from 'express'
 import cors from 'cors'
 import { v4 as uuidv4 } from 'uuid'
 import { store, setSetsFilePath } from './store'
 import { ConfigRecord } from './types'
+import {
+  setNgrokConfigPath, onNgrokStatusChange, getSavedToken, saveNgrokToken,
+  getSavedDomain, saveNgrokDomain,
+  clearNgrokToken, getNgrokStatus, ngrokConnect, ngrokDisconnect, ngrokAutoConnect,
+} from './ngrok-manager'
 
-const PORT = 3001
+const PORT = 3000
 const isDev = !app.isPackaged
 
 // ── HTTP server for mock integration endpoints ────────────────────────────────
@@ -116,11 +121,42 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle('logs:get', () => [...store.logs])
   ipcMain.handle('logs:clear', () => { store.clearLogs() })
+
+  // ── Ngrok ──────────────────────────────────────────────────────────────────
+  ipcMain.handle('ngrok:getStatus', () => getNgrokStatus())
+  ipcMain.handle('ngrok:getSavedToken', () => getSavedToken())
+  ipcMain.handle('ngrok:getSavedDomain', () => getSavedDomain())
+  ipcMain.handle('ngrok:saveDomain', (_e, domain: string) => saveNgrokDomain(domain))
+
+  ipcMain.handle('ngrok:saveAndConnect', async (_e, token: string) => {
+    saveNgrokToken(token)
+    await ngrokConnect(token)
+  })
+
+  ipcMain.handle('ngrok:retry', async () => {
+    const token = getSavedToken()
+    if (token) await ngrokConnect(token)
+  })
+
+  ipcMain.handle('ngrok:disconnect', async () => {
+    await ngrokDisconnect()
+  })
+
+  ipcMain.handle('ngrok:resetToken', async () => {
+    await ngrokDisconnect()
+    clearNgrokToken()
+  })
 }
 
 // ── Window ────────────────────────────────────────────────────────────────────
 
 function createWindow(): void {
+  app.setName('PIQ Lab')
+  if (isDev) {
+    const icon = nativeImage.createFromPath(join(__dirname, '../../resources/icon.icns'))
+    if (!icon.isEmpty()) app.dock?.setIcon(icon)
+  }
+
   const win = new BrowserWindow({
     width: 1280,
     height: 860,
@@ -139,8 +175,7 @@ function createWindow(): void {
   })
 
   if (isDev) {
-    win.loadURL('http://localhost:5173')
-    win.webContents.openDevTools({ mode: 'detach' })
+    win.loadURL(process.env['ELECTRON_RENDERER_URL']!)
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
   }
@@ -150,10 +185,17 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   setSetsFilePath(join(app.getPath('userData'), 'sets.json'))
+  setNgrokConfigPath(join(app.getPath('userData'), 'ngrok-config.json'))
+
+  onNgrokStatusChange((status) => {
+    BrowserWindow.getAllWindows().forEach(w => w.webContents.send('ngrok:status', status))
+  })
 
   registerIpcHandlers()
   startHttpServer()
   createWindow()
+
+  ngrokAutoConnect()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

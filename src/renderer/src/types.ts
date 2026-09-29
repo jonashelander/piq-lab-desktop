@@ -33,4 +33,5 @@ export type Page =
   | 'config-notification'
   | 'config-lookupuser'
   | 'config-signin'
-  | 'logs';
+  | 'logs'
+  | 'url-setup';

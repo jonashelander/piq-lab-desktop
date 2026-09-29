@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Page } from '../types';
+import { NgrokStatus } from '../api';
 
 interface SidebarProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
+  ngrokStatus: NgrokStatus;
 }
 
 const INTEGRATION_ITEMS: { label: string; page: Page }[] = [
@@ -16,7 +18,7 @@ const INTEGRATION_ITEMS: { label: string; page: Page }[] = [
   { label: 'signin',       page: 'config-signin'       },
 ];
 
-export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
+export default function Sidebar({ currentPage, onNavigate, ngrokStatus }: SidebarProps) {
   const [integrationOpen, setIntegrationOpen] = useState(true);
 
   return (
@@ -26,6 +28,25 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         <span className="sidebar-brand-name">Lab</span>
       </div>
       <nav className="sidebar-nav">
+        <div className="sidebar-section">
+          <button
+            className={`sidebar-section-header ${currentPage === 'url-setup' ? 'active' : ''}`}
+            onClick={() => onNavigate('url-setup')}
+          >
+            URL Setup
+            <span className={`sidebar-ngrok-dot ngrok-dot ${ngrokStatus.status}`} />
+          </button>
+        </div>
+
+        <div className="sidebar-section">
+          <button
+            className={`sidebar-section-header ${currentPage === 'logs' ? 'active' : ''}`}
+            onClick={() => onNavigate('logs')}
+          >
+            Logs
+          </button>
+        </div>
+
         <div className="sidebar-section">
           <button
             className="sidebar-section-header"
@@ -47,15 +68,6 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
               ))}
             </div>
           )}
-        </div>
-
-        <div className="sidebar-section">
-          <button
-            className={`sidebar-item ${currentPage === 'logs' ? 'active' : ''}`}
-            onClick={() => onNavigate('logs')}
-          >
-            Logs
-          </button>
         </div>
       </nav>
     </aside>

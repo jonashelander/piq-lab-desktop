@@ -1,5 +1,11 @@
 import { ConfigRecord, EndpointSet, LogEntry } from './types'
 
+export type NgrokStatus = {
+  status: 'idle' | 'connecting' | 'connected' | 'error'
+  url: string | null
+  error: string | null
+}
+
 declare global {
   interface Window {
     api: {
@@ -12,6 +18,15 @@ declare global {
       deleteSet:   (endpoint: string, id: string) => Promise<void>
       getLogs:     () => Promise<LogEntry[]>
       clearLogs:   () => Promise<void>
+      getNgrokStatus:      () => Promise<NgrokStatus>
+      getSavedToken:       () => Promise<string | null>
+      getSavedDomain:      () => Promise<string | null>
+      saveDomain:          (domain: string) => Promise<void>
+      ngrokSaveAndConnect: (token: string) => Promise<void>
+      ngrokRetry:          () => Promise<void>
+      ngrokDisconnect:     () => Promise<void>
+      ngrokResetToken:     () => Promise<void>
+      onNgrokStatus:       (cb: (status: NgrokStatus) => void) => () => void
     }
   }
 }
@@ -45,3 +60,13 @@ export const deleteSet       = (endpoint: string, id: string): Promise<void> =>
 
 export const fetchConfig     = () => fetchConfigFor('verifyuser')
 export const saveConfig      = (config: ConfigRecord[]) => saveConfigFor('verifyuser', config)
+
+export const getNgrokStatus      = (): Promise<NgrokStatus> => window.api.getNgrokStatus()
+export const getSavedNgrokToken  = (): Promise<string | null> => window.api.getSavedToken()
+export const getSavedNgrokDomain = (): Promise<string | null> => window.api.getSavedDomain()
+export const saveNgrokDomain     = (domain: string): Promise<void> => window.api.saveDomain(domain)
+export const ngrokSaveAndConnect = (token: string): Promise<void> => window.api.ngrokSaveAndConnect(token)
+export const ngrokRetry          = (): Promise<void> => window.api.ngrokRetry()
+export const ngrokDisconnectApi  = (): Promise<void> => window.api.ngrokDisconnect()
+export const ngrokResetToken     = (): Promise<void> => window.api.ngrokResetToken()
+export const onNgrokStatus       = (cb: (status: NgrokStatus) => void): () => void => window.api.onNgrokStatus(cb)

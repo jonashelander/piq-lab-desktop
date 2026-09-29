@@ -1,14 +1,22 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import EndpointConfigPage from './pages/EndpointConfigPage';
 import AllLogsPage from './pages/AllLogsPage';
+import NgrokPage from './pages/NgrokPage';
 import { Page } from './types';
 import { useConfirmDialog } from './hooks/useConfirmDialog';
+import { getNgrokStatus, onNgrokStatus, NgrokStatus } from './api';
 
 export default function App() {
   const [page, setPage] = useState<Page>('config-verifyuser');
   const [isDirty, setIsDirty] = useState(false);
+  const [ngrokStatus, setNgrokStatus] = useState<NgrokStatus>({ status: 'idle', url: null, error: null });
   const { confirm, dialogEl } = useConfirmDialog();
+
+  useEffect(() => {
+    getNgrokStatus().then(setNgrokStatus);
+    return onNgrokStatus(setNgrokStatus);
+  }, []);
 
   const handleNavigate = useCallback(async (next: Page) => {
     if (isDirty) {
@@ -34,12 +42,13 @@ export default function App() {
       case 'config-lookupuser':   return <EndpointConfigPage endpoint="lookupuser" nestedField={['attributes']} onDirtyChange={setIsDirty} />;
       case 'config-signin':       return <EndpointConfigPage endpoint="signin" onDirtyChange={setIsDirty} />;
       case 'logs':                return <AllLogsPage />;
+      case 'url-setup':          return <NgrokPage />;
     }
   }
 
   return (
     <div className="app-layout">
-      <Sidebar currentPage={page} onNavigate={handleNavigate} />
+      <Sidebar currentPage={page} onNavigate={handleNavigate} ngrokStatus={ngrokStatus} />
       <main className={`app-main${dialogEl ? ' app-blurred' : ''}`}>
         {renderPage()}
       </main>

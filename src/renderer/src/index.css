@@ -136,6 +136,14 @@ body {
   color: var(--text);
 }
 
+.sidebar-section-header.active {
+  color: var(--text);
+}
+
+.sidebar-ngrok-dot {
+  margin-left: 6px;
+}
+
 .sidebar-chevron {
   display: inline-block;
   font-size: 15px;
@@ -646,6 +654,38 @@ body {
   gap: 6px;
 }
 
+.log-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-day-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 4px;
+}
+
+.log-day-divider::before,
+.log-day-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.log-day-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 .log-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1089,4 +1129,124 @@ body {
   filter: blur(3px);
   pointer-events: none;
   user-select: none;
+}
+
+/* ─── Ngrok / URL Setup ──────────────────────────────────────────────────── */
+
+.sidebar-item-top {
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sidebar-item-top:hover {
+  background: var(--accent-soft);
+}
+.sidebar-item-top.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.ngrok-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.ngrok-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.ngrok-dot.connected  { background: var(--success); }
+.ngrok-dot.connecting { background: #ff9f0a; }
+.ngrok-dot.error      { background: var(--danger); }
+
+.ngrok-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.ngrok-url-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.ngrok-url {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.ngrok-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.ngrok-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.ngrok-steps {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ngrok-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.ngrok-input-row .field-input {
+  flex: 1;
+}
+
+.ngrok-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ngrok-domain-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ngrok-domain-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.ngrok-optional {
+  font-weight: 400;
+  color: var(--text-tertiary);
 }

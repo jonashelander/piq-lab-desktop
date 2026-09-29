@@ -20,4 +20,27 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('logs:get'),
   clearLogs:   () =>
     ipcRenderer.invoke('logs:clear'),
+
+  // ── Ngrok ────────────────────────────────────────────────────────────────
+  getNgrokStatus:      () =>
+    ipcRenderer.invoke('ngrok:getStatus'),
+  getSavedToken:       () =>
+    ipcRenderer.invoke('ngrok:getSavedToken'),
+  getSavedDomain:      () =>
+    ipcRenderer.invoke('ngrok:getSavedDomain'),
+  saveDomain:          (domain: string) =>
+    ipcRenderer.invoke('ngrok:saveDomain', domain),
+  ngrokSaveAndConnect: (token: string) =>
+    ipcRenderer.invoke('ngrok:saveAndConnect', token),
+  ngrokRetry:          () =>
+    ipcRenderer.invoke('ngrok:retry'),
+  ngrokDisconnect:     () =>
+    ipcRenderer.invoke('ngrok:disconnect'),
+  ngrokResetToken:     () =>
+    ipcRenderer.invoke('ngrok:resetToken'),
+  onNgrokStatus:       (cb: (status: unknown) => void) => {
+    const handler = (_e: unknown, status: unknown) => cb(status)
+    ipcRenderer.on('ngrok:status', handler)
+    return () => ipcRenderer.removeListener('ngrok:status', handler)
+  },
 })

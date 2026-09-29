@@ -39,10 +39,6 @@ type SetsData = Record<Endpoint, EndpointSet[]>
 
 let setsFilePath = path.join(process.cwd(), 'data', 'sets.json')
 
-export function setSetsFilePath(p: string): void {
-  setsFilePath = p
-}
-
 function loadSetsFromDisk(): SetsData {
   try {
     if (fs.existsSync(setsFilePath)) {
@@ -86,20 +82,20 @@ function saveToDisk(): void {
   }
 }
 
-const loadedSets = loadSetsFromDisk()
-
-// Migration: ensure every authorize set has an 'attributes' record
-for (const set of loadedSets.authorize ?? []) {
-  if (!set.config.some(r => r.key === 'attributes')) {
-    set.config.push({ key: 'attributes', value: {}, included: true, order: 7 })
+function applyMigrations(data: SetsData): void {
+  for (const set of data.authorize ?? []) {
+    if (!set.config.some(r => r.key === 'attributes')) {
+      set.config.push({ key: 'attributes', value: {}, included: true, order: 7 })
+    }
+  }
+  for (const ep of ENDPOINTS) {
+    if (data[ep].length === 0) {
+      data[ep] = [makeInitialSet(ep)]
+    }
   }
 }
 
-for (const ep of ENDPOINTS) {
-  if (loadedSets[ep].length === 0) {
-    loadedSets[ep] = [makeInitialSet(ep)]
-  }
-}
+const loadedSets = buildInitialSets()
 
 export const store = {
   verifyuserConfig:   cloneDefaults(DEFAULT_VERIFYUSER_CONFIG),
@@ -178,9 +174,14 @@ export const store = {
   },
 }
 
-for (const ep of ENDPOINTS) {
-  const initial = store.sets[ep].find(s => s.id === 'initial')
-  if (initial) {
-    store.setConfig(ep, deepClone(initial.config))
+export function setSetsFilePath(p: string): void {
+  setsFilePath = p
+  const loaded = loadSetsFromDisk()
+  applyMigrations(loaded)
+  store.sets = loaded
+  for (const ep of ENDPOINTS) {
+    const initial = store.sets[ep].find(s => s.id === 'initial')
+    if (initial) store.setConfig(ep, deepClone(initial.config))
   }
 }
+

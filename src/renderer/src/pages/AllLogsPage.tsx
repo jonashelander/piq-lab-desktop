@@ -75,6 +75,35 @@ function LogCard({ entry }: { entry: LogEntry }) {
   );
 }
 
+function getDayLabel(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+
+  const toMidnight = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round(
+    (toMidnight(now).getTime() - toMidnight(date).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+
+  return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function groupByDay(logs: LogEntry[]): { label: string; entries: LogEntry[] }[] {
+  const groups: { label: string; entries: LogEntry[] }[] = [];
+  for (const entry of logs) {
+    const label = getDayLabel(entry.timestamp);
+    const existing = groups.find(g => g.label === label);
+    if (existing) {
+      existing.entries.push(entry);
+    } else {
+      groups.push({ label, entries: [entry] });
+    }
+  }
+  return groups;
+}
+
 export default function AllLogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +112,7 @@ export default function AllLogsPage() {
   const loadLogs = useCallback(async () => {
     try {
       const data = await fetchAllLogs();
-      setLogs(data);
+      setLogs([...data].reverse());
     } catch (e) {
       console.error(e);
     } finally {
@@ -115,13 +144,15 @@ export default function AllLogsPage() {
     return <div className="page-loading">Loading logs…</div>;
   }
 
+  const groups = groupByDay(logs);
+
   return (
     <div className="page">
       <div className="page-header">
         <div>
           <h1 className="page-title">Logs</h1>
           <p className="page-subtitle">
-            All incoming requests and outgoing responses, in handled order.
+            All incoming requests and outgoing responses, newest first.
           </p>
         </div>
         <div className="page-actions">
@@ -150,8 +181,15 @@ export default function AllLogsPage() {
       ) : (
         <div className="log-list">
           <p className="log-count">{logs.length} request{logs.length !== 1 ? 's' : ''} logged</p>
-          {logs.map(entry => (
-            <LogCard key={entry.id} entry={entry} />
+          {groups.map(group => (
+            <div key={group.label} className="log-day-group">
+              <div className="log-day-divider">
+                <span className="log-day-label">{group.label}</span>
+              </div>
+              {group.entries.map(entry => (
+                <LogCard key={entry.id} entry={entry} />
+              ))}
+            </div>
           ))}
         </div>
       )}
