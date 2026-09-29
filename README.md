@@ -56,6 +56,8 @@ PaymentIQ is a cloud service and cannot reach `localhost` directly. PIQ Lab has 
 2. Copy your **Authtoken** from the ngrok dashboard
 3. In PIQ Lab, go to **URL Setup** and paste the token
 4. Copy the public URL
-5. In PaymentIQ Backoffice, go to **Admin → MerchantConfig** and set the `serviceEndpoint` to the copied URL
+5. In PaymentIQ Backoffice, go to **Admin → MerchantConfig** and:
+   - Set `apiIntegrationUrl` to the copied URL
+   - Set `integrationService` to `standardMerchantIntegrationService` (instead of `mockMerchantIntegrationService`)
 
 For a permanent URL that never changes, reserve a free static domain in ngrok and enter it in PIQ Lab under **URL Setup → Static domain**. This way you only need to configure the URL in PaymentIQ once.
