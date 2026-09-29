@@ -146,6 +146,21 @@ export default function NgrokPage() {
         </div>
       )}
 
+      {status.status === 'connected' && status.url && (
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Configure PaymentIQ</h2>
+          </div>
+          <div className="card-body ngrok-card-body">
+            <p className="ngrok-hint">In PaymentIQ Backoffice, go to <strong>Admin → MerchantConfig</strong> and set:</p>
+            <ol className="ngrok-steps">
+              <li><code>apiIntegrationUrl</code> → the URL above</li>
+              <li><code>integrationService</code> → <code>standardMerchantIntegrationService</code></li>
+            </ol>
+          </div>
+        </div>
+      )}
+
       {hasToken === false && (
         <div className="card">
           <div className="card-header">
